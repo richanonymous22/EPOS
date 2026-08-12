@@ -19,11 +19,20 @@ export default function App() {
   const [paying, setPaying] = useState(false);
   const [journalOpen, setJournalOpen] = useState(false);
   const [clock, setClock] = useState(() => new Date());
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    () => (localStorage.getItem('till-theme') as 'light' | 'dark') ?? 'light',
+  );
 
   useEffect(() => {
     const t = setInterval(() => setClock(new Date()), 10_000);
     return () => clearInterval(t);
   }, []);
+
+  // A daytime café and a late bar want opposite things from a screen.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('till-theme', theme);
+  }, [theme]);
 
   /** Age-restricted first, then modifiers, then straight onto the bill. */
   const pick = (p: Product) => {
@@ -48,6 +57,8 @@ export default function App() {
           </div>
         </div>
 
+        <div className="divider" aria-hidden />
+
         <div className="segmented" role="group" aria-label="Order type">
           {ORDER_TYPES.map((t) => (
             <button
@@ -62,19 +73,27 @@ export default function App() {
 
         <div className="spacer" />
 
-        <button className="hchip ok" onClick={() => setJournalOpen(true)}>
+        <button className="hchip" onClick={() => setJournalOpen(true)}>
           <span className="dot" aria-hidden />
           Journal <strong className="num">{till.entries.length}</strong>
         </button>
 
         <div className="hchip">
-          <span aria-hidden>👤</span>
           <strong>{till.staff}</strong>
         </div>
 
         <div className="hchip num">
           {clock.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
         </div>
+
+        <button
+          className="hchip icon-only"
+          onClick={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
+          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        >
+          {theme === 'light' ? '☾' : '☀'}
+        </button>
       </header>
 
       <div className="body">

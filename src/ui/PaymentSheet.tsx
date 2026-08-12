@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { formatMoney } from '../core/money';
+import { bandLabel } from '../core/vat';
 import { cashSuggestions, changeDue } from '../core/order';
 import type { OrderTotals } from '../core/types';
 
@@ -92,23 +93,20 @@ export function PaymentSheet({ totals, orderNumber, onClose, onComplete }: Props
                 <div className="pay-due-label">Amount due</div>
                 <div className="pay-due num">{formatMoney(totals.total)}</div>
 
-                {totals.vatByRate.map((r) => (
-                  <div className="vat-row" key={r.rate}>
-                    <span className="rate">
-                      <span className={`vat-badge ${r.rate === 0 ? 'zero' : ''}`}>
-                        {r.rate === 0 ? 'Zero-rated' : `VAT ${r.rate}%`}
+                {totals.vatByRate.map((r, i) => {
+                  const b = bandLabel(r);
+                  return (
+                    <div className="vat-row" key={`${r.rate}-${r.outOfScope ? 'oos' : i}`}>
+                      <span className="rate">
+                        <span className={`vat-badge ${b.zero ? 'zero' : ''}`}>{b.badge}</span>
+                        <span className="num">
+                          {b.note} · {formatMoney(r.gross)}
+                        </span>
                       </span>
-                      <span className="num">on {formatMoney(r.gross)}</span>
-                    </span>
-                    <b className="num">{formatMoney(r.vat)}</b>
-                  </div>
-                ))}
-                {totals.serviceCharge > 0 && (
-                  <div className="vat-row" style={{ marginTop: 6 }}>
-                    <span>Includes service charge</span>
-                    <b className="num">{formatMoney(totals.serviceCharge)}</b>
-                  </div>
-                )}
+                      <b className="num">{formatMoney(r.vat)}</b>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="tenders">

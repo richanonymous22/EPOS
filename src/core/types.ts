@@ -76,9 +76,8 @@ export type Allergen =
 export interface Category {
   id: string;
   name: string;
-  /** Accent colour — colour-coded categories are real muscle-memory aid on a till. */
-  hue: number;
-  icon: string;
+  /** Accent colour — colour-coded categories are a real muscle-memory aid on a till. */
+  colour: string;
 }
 
 export interface SelectedModifier {
@@ -157,7 +156,19 @@ export interface OrderTotals {
   total: Pence;
   net: Pence;
   vat: Pence;
-  /** VAT broken down by rate, as required on a VAT receipt. */
-  vatByRate: { rate: number; net: Pence; vat: Pence; gross: Pence }[];
+  /**
+   * VAT broken down by band, as required on a VAT receipt.
+   *
+   * Discretionary service charge gets its own band with `outOfScope`, because
+   * "outside the scope of VAT" and "zero-rated" are different tax treatments and
+   * merging them both misstates the return and confuses whoever reads the receipt.
+   */
+  vatByRate: {
+    rate: number;
+    net: Pence;
+    vat: Pence;
+    gross: Pence;
+    outOfScope?: boolean;
+  }[];
   itemCount: number;
 }

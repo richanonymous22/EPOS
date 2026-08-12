@@ -190,7 +190,7 @@ export function computeTotals(order: Order, at: number = Date.now()): OrderTotal
   const total = goodsTotal + serviceCharge;
   const net = total - vat;
 
-  const byRate = new Map<number, { rate: number; net: Pence; vat: Pence; gross: Pence }>();
+  const byRate = new Map<number, OrderTotals['vatByRate'][number]>();
   for (const l of lines) {
     const e = byRate.get(l.vatRate) ?? { rate: l.vatRate, net: 0, vat: 0, gross: 0 };
     e.net += l.net;
@@ -198,11 +198,12 @@ export function computeTotals(order: Order, at: number = Date.now()): OrderTotal
     e.gross += l.gross;
     byRate.set(l.vatRate, e);
   }
+
+  const bands = [...byRate.values()].sort((a, b) => b.rate - a.rate);
+
+  // Kept as its own band rather than folded into the zero-rated goods.
   if (serviceCharge > 0) {
-    const e = byRate.get(0) ?? { rate: 0, net: 0, vat: 0, gross: 0 };
-    e.net += serviceCharge;
-    e.gross += serviceCharge;
-    byRate.set(0, e);
+    bands.push({ rate: 0, net: serviceCharge, vat: 0, gross: serviceCharge, outOfScope: true });
   }
 
   return {
@@ -214,7 +215,7 @@ export function computeTotals(order: Order, at: number = Date.now()): OrderTotal
     total,
     net,
     vat,
-    vatByRate: [...byRate.values()].sort((a, b) => b.rate - a.rate),
+    vatByRate: bands,
     itemCount: active.reduce((s, l) => s + l.qty, 0),
   };
 }

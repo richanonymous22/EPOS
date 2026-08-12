@@ -167,6 +167,24 @@ describe('service charge', () => {
     expect(t.vat).toBe(292);                   // unchanged by the service charge
     expect(t.net + t.vat).toBe(t.total);
   });
+
+  it('is banded as outside the scope of VAT, not merged into zero-rated goods', () => {
+    let o = emptyOrder({ serviceChargePercent: 12.5, orderType: 'takeaway' });
+    o = addLine(o, sandwich).order; // £6.50 genuinely zero-rated
+    o = addLine(o, burger).order;   // £17.50 @ 20%
+
+    const t = computeTotals(o);
+    const zeroGoods = t.vatByRate.find((r) => r.rate === 0 && !r.outOfScope)!;
+    const service = t.vatByRate.find((r) => r.outOfScope)!;
+
+    // The two must stay distinct — they are different tax treatments.
+    expect(zeroGoods.gross).toBe(pence(6.5));
+    expect(service.gross).toBe(t.serviceCharge);
+    expect(service.vat).toBe(0);
+
+    // And the bands must still reconcile to the total.
+    expect(t.vatByRate.reduce((s, r) => s + r.gross, 0)).toBe(t.total);
+  });
 });
 
 describe('invariants across randomly generated baskets', () => {

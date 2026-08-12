@@ -1,4 +1,5 @@
 import { formatMoney } from '../core/money';
+import { bandLabel } from '../core/vat';
 import { unitWithModifiers } from '../core/order';
 import { VOID_REASON_LABELS } from '../core/journal';
 import type { Order, OrderTotals } from '../core/types';
@@ -145,27 +146,25 @@ export function OrderPanel(p: Props) {
 
             {totals.serviceCharge > 0 && (
               <div className="trow">
-                <span className="lbl">
-                  Service {order.serviceChargePercent}%
-                  <span className="vat-badge">no VAT</span>
-                </span>
+                <span className="lbl">Service {order.serviceChargePercent}%</span>
                 <span className="num">{formatMoney(totals.serviceCharge)}</span>
               </div>
             )}
 
             {/* The VAT breakdown is the point of the whole engine — show it, always. */}
             <div className="vat-block">
-              {totals.vatByRate.map((r) => (
-                <div className="vat-row" key={r.rate}>
-                  <span className="rate">
-                    <span className={`vat-badge ${r.rate === 0 ? 'zero' : ''}`}>
-                      {r.rate === 0 ? 'Zero-rated' : `VAT ${r.rate}%`}
+              {totals.vatByRate.map((r, i) => {
+                const b = bandLabel(r);
+                return (
+                  <div className="vat-row" key={`${r.rate}-${r.outOfScope ? 'oos' : i}`}>
+                    <span className="rate">
+                      <span className={`vat-badge ${b.zero ? 'zero' : ''}`}>{b.badge}</span>
+                      <span className="num">on {formatMoney(r.gross)}</span>
                     </span>
-                    <span className="num">on {formatMoney(r.gross)}</span>
-                  </span>
-                  <b className="num">{formatMoney(r.vat)}</b>
-                </div>
-              ))}
+                    <b className="num">{formatMoney(r.vat)}</b>
+                  </div>
+                );
+              })}
               <div className="vat-row" style={{ marginTop: 3, paddingTop: 5, borderTop: '1px solid var(--line)' }}>
                 <span>Net {formatMoney(totals.net)}</span>
                 <b className="num">VAT {formatMoney(totals.vat)}</b>

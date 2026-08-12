@@ -3,16 +3,21 @@ import type { Category, ModifierGroup, Product } from './types';
 
 /** Demo estate: a gastropub. Enough breadth to exercise every VAT path. */
 
+/**
+ * A curated palette rather than rotated hues: these are picked to stay
+ * distinguishable from one another on a cheap POS panel, and to hold up against
+ * both a white and a near-black background.
+ */
 export const categories: Category[] = [
-  { id: 'draught', name: 'Draught', hue: 38, icon: '🍺' },
-  { id: 'wine', name: 'Wine', hue: 340, icon: '🍷' },
-  { id: 'spirits', name: 'Spirits', hue: 275, icon: '🥃' },
-  { id: 'soft', name: 'Soft & Hot', hue: 195, icon: '🥤' },
-  { id: 'small', name: 'Small Plates', hue: 150, icon: '🫒' },
-  { id: 'mains', name: 'Mains', hue: 15, icon: '🍽️' },
-  { id: 'sides', name: 'Sides', hue: 95, icon: '🍟' },
-  { id: 'puds', name: 'Puddings', hue: 315, icon: '🍰' },
-  { id: 'deli', name: 'Deli Counter', hue: 55, icon: '🥪' },
+  { id: 'draught', name: 'Draught', colour: '#c08328' },
+  { id: 'wine', name: 'Wine', colour: '#a03a55' },
+  { id: 'spirits', name: 'Spirits', colour: '#6f52a8' },
+  { id: 'soft', name: 'Soft & Hot', colour: '#1f7f96' },
+  { id: 'small', name: 'Small Plates', colour: '#5f8438' },
+  { id: 'mains', name: 'Mains', colour: '#c05a2e' },
+  { id: 'sides', name: 'Sides', colour: '#3d8460' },
+  { id: 'puds', name: 'Puddings', colour: '#b04a86' },
+  { id: 'deli', name: 'Deli Counter', colour: '#96762a' },
 ];
 
 export const modifierGroups: ModifierGroup[] = [

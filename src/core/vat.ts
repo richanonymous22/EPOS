@@ -84,6 +84,17 @@ export function splitGross(gross: number, ratePercent: number): { net: number; v
   return { net: gross - vat, vat };
 }
 
+/** How a VAT band is described on screen and on the receipt. */
+export function bandLabel(band: { rate: number; outOfScope?: boolean }): {
+  badge: string;
+  note: string;
+  zero: boolean;
+} {
+  if (band.outOfScope) return { badge: 'Outside scope', note: 'service charge', zero: false };
+  if (band.rate === 0) return { badge: 'Zero-rated', note: 'goods', zero: true };
+  return { badge: `VAT ${band.rate}%`, note: 'goods', zero: false };
+}
+
 /** Human label for receipts and the VAT summary. */
 export function vatClassLabel(vatClass: VatClass, orderType: OrderType): string {
   const rate = resolveVatRate(vatClass, orderType);
